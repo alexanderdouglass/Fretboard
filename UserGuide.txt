@@ -1,0 +1,24 @@
+CLASS: 'Key'
+Inputs: note, mode
+note: A letter note input as a string (e.g. 'C', 'F', 'Bb', 'C#')
+mode: Scale mode input as a string (e.g. 'Major','Minor','Dorian')
+
+Functions:
+'keydict'
+Outputs dictionary with all of the key information.
+
+
+
+CLASS: 'Instrument'
+Inputs: inst,NumFrets,StrNotes
+inst: Instrument name in string format (e.g. 'Guitar','Mandolin','Custom').
+NumFrets: Number of frets to display in output
+StrNotes (optional): List of notes input as a string (e.g. ['D2', 'A2', 'D3', 'F#3', 'B3', 'E4'])
+
+Functions:
+'fretboard'
+Outputs fretboard images based on key and user input. Also provides fretboard dictionary.
+Inputs: PlotFlag,PlotStyle='Notes',Key=False)
+PlotFlag (optional): True/False boolean toggling plots on and off
+PlotStyle (optional): What indicators are desired on note circles (note name, degree, interval)
+Key (optional): Input a key dictionary, if empty it will default to entire fretboard.

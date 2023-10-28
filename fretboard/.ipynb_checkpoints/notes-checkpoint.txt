@@ -1,0 +1,256 @@
+
+
+# Classes include: instrument, key, 
+
+# Instrument Class Functions:
+# - Build fretboard
+# - Build chords
+# - Build tabs
+
+# Key Class Functions:
+# - Build key - notes w/ degrees and intervals
+
+
+# Change fretboard function to intake a dictionary of notes and corresponding degrees and intervals.
+    # Or should it take in a list of notes and an optional list of degrees or intervals?
+    # Make everything optional. No inputs just outputs a full fretboard.
+
+
+
+
+# Instrument Class - Defines an instrument object based on a list of input notes corresponding to strings
+class Instrument:
+    
+    # import numpy as np
+    
+    def __init__(self,inst,NumFrets,StrNotes=[]):
+        self.inst = inst
+        self.NumFrets = NumFrets
+        if inst == 'Guitar':
+            self.StrNotes = ['E2','A2','D3','G3','B3','E4']
+        elif inst == 'Mandolin':
+            self.StrNotes = ['G3','D4','A5','E5']
+        elif inst == 'Banjo':
+            self.StrNotes = ['G4','D3','G3','B3','D4']
+        else inst == 'Custom':
+            self.StrNotes = StrNotes
+        
+        
+    def Fretboard(self,Key=False,PlotFlag=True,PlotStyle='Notes'):
+        # Outputs a fretboard image
+        
+        # Input a key object.
+        # If no key is input, display all of the notes, in sharp format
+        
+        # PlotFlag can be:
+        #  -True: Plots turned on
+        #  -False: Plots turned off
+        # PlotStyle can be:
+        #  -Notes: Labels all notes with note names
+        #  -Degrees: Labels all notes with scale degrees
+        #  -Intervals: Labels all notes with intervals
+        #  -Solid: All notes just given as solid circles (Root in Red, all others black)
+
+        # Get key dictionary
+        NoteNums      = [ 0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 , 11 ]
+        AllInts       = ['R','m2','M2','m3','M3','P4','TT','P5','m6','M6','m7','M7']
+        AllNotesSharp = ['C','C#', 'D','D#', 'E', 'F','F#', 'G','G#', 'A','A#', 'B']
+        AllNotesFlat  = ['C','Db', 'D','Eb', 'E', 'F','Gb', 'G','Ab', 'A','Bb', 'B']
+        
+        if Key == False:
+            keydict = { 'AllNotes':AllNotesSharp,
+                   'AllIntervals':AllInts,
+                   'KeyNotes':AllNotesSharp,
+                   'KeyIntervals':AllInts,
+                   'KeyNoteNums':NoteNums}
+        else:
+            keydict = Key.keydict()
+        
+        # Define where notes lie on the fretboard
+        FretboardSharp = []
+        FretboardFlat = []
+        FretboardSharpNums = []
+        FretboardFlatNums = []
+        nStrings = len(self.StrNotes)
+        stringLabels = []
+        
+        for String in self.StrNotes:
+            stringLabels.append(String[:-1])
+            try:
+                OpenNote = AllNotesSharp.index(String[:-1])
+            except:
+                OpenNote = AllNotesFlat.index(String[:-1])
+            NoteListSharp = AllNotesSharp[OpenNote:] + AllNotesSharp + AllNotesSharp
+            NoteListSharp = NoteListSharp[:self.NumFrets+1]
+            NoteListSharpNum = NoteListSharp.copy()
+            NoteListFlat  = AllNotesFlat[OpenNote:] + AllNotesFlat + AllNotesFlat
+            NoteListFlat  = NoteListFlat[:self.NumFrets+1]
+            NoteListFlatNum = NoteListFlat.copy()
+
+            num = int(String[-1])
+            for ii,note in enumerate(NoteListSharpNum):
+                NoteListSharpNum[ii] = NoteListSharpNum[ii] + str(num)
+                NoteListFlatNum[ii] = NoteListFlatNum[ii] + str(num)
+                if note == 'B':
+                    num += 1
+            FretboardSharp.append(NoteListSharp)
+            FretboardFlat.append(NoteListFlat)
+            FretboardSharpNums.append(NoteListSharpNum)
+            FretboardFlatNums.append(NoteListFlatNum)
+
+        Fretboard = { 'Sharps':FretboardSharp , 
+                     'Flats':FretboardFlat , 
+                     'SharpNums':FretboardSharpNums , 
+                     'FlatNums':FretboardFlatNums }
+
+        if PlotFlag != False:
+            
+            plt.figure(figsize = (15,3))
+            plt.rcParams.update({'font.size': 16})
+            plt.rcParams['font.family'] = 'serif'
+            plt.rcParams['font.serif'] = ['Times New Roman'] + plt.rcParams['font.serif']
+            for ii in range(nStrings):
+                plt.plot([0,self.NumFrets],[ii,ii],'k',linewidth=2)
+            for ii in range(self.NumFrets+1):
+                plt.plot([ii,ii],[0,nStrings-1],'k',linewidth=2)
+            plt.xlim([0,12])
+            for pos in ['right', 'top', 'bottom', 'left']: 
+                plt.gca().spines[pos].set_visible(False) 
+            plt.xticks(range(self.NumFrets+1),range(self.NumFrets+1))
+            plt.yticks(range(nStrings),stringLabels)
+            plt.ylim([-0.5,nStrings-0.5])
+            
+            if PlotFlag == 'Key':
+                keyNotesList = [KeyDict['All'][key] for key in ['1','2','3','4','5','6','7']]
+                FullDictInv = {v: k for k, v in KeyDict['All'].items()}
+                SharpDictInv = {v: k for k, v in KeyDict['Sharps'].items()}
+                FlatDictInv = {v: k for k, v in KeyDict['Flats'].items()}
+                IntDictInv = {v: k for k, v in KeyDict['Intervals'].items()}
+            else:
+                keyNotesList = AllNotesSharp
+                RootNote = ''
+                
+            
+            for si,stringFrets in enumerate(FretboardSharp):
+                for note in keyNotesList:
+                    indices = [i for i, x in enumerate(stringFrets) if x == note]
+                    for ii in indices:
+                        # if ii == 0:
+                        #     continue
+                            
+                        if PlotFlag == 'Key' and IntDictInv[note] == 'R' :
+                            plt.scatter([ii-0.5],[si],s=700,c='r')
+                        elif PlotFlag == 'Key' and SharpDictInv[note] == '1':
+                            plt.scatter([ii-0.5],[si],s=700,c='r')
+                        else:
+                            plt.scatter([ii-0.5],[si],s=700,c='k')
+                            
+                        # if PlotStyle == 'Solid':
+                        if PlotStyle == 'Degrees':
+                            plt.text(ii-0.5,si,SharpDictInv[note], c='w', horizontalalignment='center', verticalalignment='center', fontsize='large', fontweight='bold')
+                        elif PlotStyle == 'Intervals':
+                            plt.text(ii-0.5, si, IntDictInv[note], c='w', horizontalalignment='center', verticalalignment='center', fontsize='large', fontweight='bold')
+                        elif PlotStyle == 'Notes':
+                            plt.text(ii-0.5, si, note, c='w', horizontalalignment='center', verticalalignment='center', fontsize='large', fontweight='bold')
+            
+            plt.show()
+        
+        return Fretboard
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # def chord_charts()
+    # Outputs chord charts for a given chord on a given fretboard
+
+        
+# Key class takes an input key and outputs an object with all of that key's information.
+class Key:
+    
+    def __init__(self,note,mode):
+        self.keynote = note
+        self.mode = mode
+        
+    def keydict(self):
+        
+        # List all notes in both sharp and flat formats
+        AllNoteNums   = [ 0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 ,  11]
+        AllInts       = ['R','m2','M2','m3','M3','P4','TT','P5','m6','M6','m7','M7']
+        AllNotesSharp = ['C','C#', 'D','D#', 'E', 'F','F#', 'G','G#', 'A','A#', 'B']
+        AllNotesFlat  = ['C','Db', 'D','Eb', 'E', 'F','Gb', 'G','Ab', 'A','Bb', 'B']
+
+        # Reorder so proper root note starts the lists
+        try:
+            keyShift = AllNotesSharp.index(self.note)
+        except:
+            keyShift = AllNotesFlat.index(self.note)
+        if keyShift > 0:
+            AllNotesSharp = AllNotesSharp[keyShift:] + AllNotesSharp[0:keyShift]
+            AllNotesFlat  = AllNotesFlat[keyShift:] + AllNotesFlat[0:keyShift]
+        
+        # Mode definitions
+        if self.mode == 'Ionian' or self.mode == 'Major':
+            NoteNums  = [ 0,  2,  4,  5,  7,  9,  11]
+        elif self.mode == 'Dorian':
+            NoteNums  = [ 0 , 2 , 3  , 5 , 7 , 9 , 10 ]
+        elif self.mode == 'Phrygian':
+            NoteNums  = [ 0 , 1  , 3  , 5 , 7 , 8  , 10 ]
+        elif self.mode == 'Lydian':
+            NoteNums  = [ 0 , 2 , 4 , 6  , 7 , 9 , 11]
+        elif self.mode == 'Mixolydian':
+            NoteNums  = [ 0 , 2 , 4 , 5 , 7 , 9 , 10 ]
+        elif self.mode == 'Aeolian' or mode == 'Minor':
+            NoteNums  = [ 0 , 2 , 3  , 5 , 7 , 8  , 10 ]
+        elif self.mode == 'Locrian':
+            NoteNums  = [ 0 , 1  , 3  , 5 , 6  , 8  , 10 ]
+        
+        # Determine whether to use sharp or flat keys
+        KeyNotes = [AllNotesSharp[i] for i in NoteNums]
+        AllNotes = AllNotesSharp.copy()
+        SharpTest = True
+        for ii,note in enumerate(KeyNotes):
+            if ii == 0:
+                testnote = note
+            if ii > 0:
+                if note[0] == testnote[0]:
+                    SharpTest = False
+                    break
+                elif note[0] != testnote[0]:
+                    testnote = note
+
+        if SharpTest == False:
+            KeyNotes = [AllNotesFlat[i] for i in NoteNums]
+            AllNotes = AllNotesFlat.copy()    
+        KeyInts  = [AllInts[i] for i in NoteNums]
+
+        # Define dictionary for key
+        keydict = { 'AllNotes':AllNotes,
+                   'AllIntervals':AllInts,
+                   'KeyNotes':KeyNotes,
+                   'KeyIntervals':KeyInts,
+                   'KeyNoteNums':NoteNums}
+
+        return keydict
+    
+    
+    # def scales():
+#         # Returns scale defined by input key dictionary or by use input of note and mode
+        # return 
+        
+    # def chords():
+    # Defines all of the relevant chords for a given key and provides list of notes?
+    # Option to plot them in musical notation?
+        

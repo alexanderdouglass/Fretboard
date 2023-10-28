@@ -1,0 +1,17 @@
+
+
+# Classes include: instrument, key, 
+
+# Instrument Class Functions:
+# - Build fretboard
+# - Build chords
+# - Build tabs
+
+# Key Class Functions:
+# - Build key - notes w/ degrees and intervals
+
+
+# Change fretboard function to intake a dictionary of notes and corresponding degrees and intervals.
+    # Or should it take in a list of notes and an optional list of degrees or intervals?
+    # Make everything optional. No inputs just outputs a full fretboard.
+
