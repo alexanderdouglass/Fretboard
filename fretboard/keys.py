@@ -1,75 +1,3 @@
-
-# Key class takes an input key and outputs an object with all of that key's information.
-# class Key:
-    
-#     def __init__(self,note,mode):
-#         self.note = note
-#         self.mode = mode
-        
-#     def keydict(self):
-        
-#         # List all notes in both sharp and flat formats
-#         AllNoteNums   = [ 0 ,  1 ,  2 ,  3 ,  4 ,  5 ,  6 ,  7 ,  8 ,  9 , 10 ,  11]
-#         AllInts       = ['R','m2','M2','m3','M3','P4','TT','P5','m6','M6','m7','M7']
-#         AllNotesSharp = ['C','C#', 'D','D#', 'E', 'F','F#', 'G','G#', 'A','A#', 'B']
-#         AllNotesFlat  = ['C','Db', 'D','Eb', 'E', 'F','Gb', 'G','Ab', 'A','Bb', 'B']
-
-#         # Reorder so proper root note starts the lists
-#         try:
-#             keyShift = AllNotesSharp.index(self.note)
-#         except:
-#             keyShift = AllNotesFlat.index(self.note)
-#         if keyShift > 0:
-#             AllNotesSharp = AllNotesSharp[keyShift:] + AllNotesSharp[0:keyShift]
-#             AllNotesFlat  = AllNotesFlat[keyShift:] + AllNotesFlat[0:keyShift]
-        
-#         # Mode definitions
-#         if self.mode == 'Ionian' or self.mode == 'Major':
-#             NoteNums  = [ 0,  2,  4,  5,  7,  9,  11]
-#         elif self.mode == 'Dorian':
-#             NoteNums  = [ 0 , 2 , 3  , 5 , 7 , 9 , 10 ]
-#         elif self.mode == 'Phrygian':
-#             NoteNums  = [ 0 , 1  , 3  , 5 , 7 , 8  , 10 ]
-#         elif self.mode == 'Lydian':
-#             NoteNums  = [ 0 , 2 , 4 , 6  , 7 , 9 , 11]
-#         elif self.mode == 'Mixolydian':
-#             NoteNums  = [ 0 , 2 , 4 , 5 , 7 , 9 , 10 ]
-#         elif self.mode == 'Aeolian' or self.mode == 'Minor':
-#             NoteNums  = [ 0 , 2 , 3  , 5 , 7 , 8  , 10 ]
-#         elif self.mode == 'Locrian':
-#             NoteNums  = [ 0 , 1  , 3  , 5 , 6  , 8  , 10 ]
-        
-#         # Determine whether to use sharp or flat keys
-#         KeyNotes = [AllNotesSharp[i] for i in NoteNums]
-#         AllNotes = AllNotesSharp.copy()
-#         SharpTest = True
-#         for ii,note in enumerate(KeyNotes):
-#             if ii == 0:
-#                 testnote = note
-#             if ii > 0:
-#                 if note[0] == testnote[0]:
-#                     SharpTest = False
-#                     break
-#                 elif note[0] != testnote[0]:
-#                     testnote = note
-
-#         if SharpTest == False:
-#             KeyNotes = [AllNotesFlat[i] for i in NoteNums]
-#             AllNotes = AllNotesFlat.copy()    
-#         KeyInts  = [AllInts[i] for i in NoteNums]
-
-#         # Define dictionary for key
-#         keydict = { 'AllNotes':AllNotes,
-#                    'AllIntervals':AllInts,
-#                    'KeyNotes':KeyNotes,
-#                    'KeyIntervals':KeyInts,
-#                    'KeyNoteNums':NoteNums}
-
-#         return keydict
-    
-    
-        
-        
         
 class Key:
     def __init__(self, note, mode):
@@ -96,12 +24,17 @@ class Key:
             'Mixolydian': [0, 2, 4, 5, 7, 9, 10],
             'Aeolian': [0, 2, 3, 5, 7, 8, 10],
             'Minor': [0, 2, 3, 5, 7, 8, 10],
-            'Locrian': [0, 1, 3, 5, 6, 8, 10]
+            'Locrian': [0, 1, 3, 5, 6, 8, 10],
+            'Harmonic Minor': [0, 2, 3, 5, 8, 8, 11]
         }
 
         note_nums = mode_definitions.get(self.mode, [])
-        key_notes = [all_notes_sharp[i] for i in note_nums]
-        # print(key_notes)
+        sharp_notes = [all_notes_sharp[i][0:1] for i in note_nums]
+        if len(sharp_notes) == len(set(sharp_notes)):
+            key_notes = [all_notes_sharp[i] for i in note_nums]
+        else:
+            key_notes = [all_notes_flat[i] for i in note_nums]
+        
         all_notes = all_notes_sharp if key_notes[0][-1] != 'b' else all_notes_flat
         key_ints = [all_ints[i] for i in note_nums]
 
@@ -114,8 +47,3 @@ class Key:
         }
 
         return keydict
-
-    
-    # def scales():
-#         # Returns scale defined by input key dictionary or by use input of note and mode
-        # return 
